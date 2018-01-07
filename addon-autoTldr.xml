@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<addon addon_id="autoTldr" title="[kiror+git] Auto TL;DR on forums" version_string="0.0" version_id="0" url="https://github.com/freekrai/summarizer" install_callback_class="" install_callback_method="" uninstall_callback_class="" uninstall_callback_method="">
+  <admin_navigation/>
+  <admin_permissions/>
+  <admin_style_properties/>
+  <admin_templates/>
+  <admin_template_modifications/>
+  <code_events/>
+  <code_event_listeners>
+    <listener event_id="load_class_controller" execute_order="10" callback_class="autoTldr_ControllerPublicPostListener" callback_method="callback" active="1" hint="XenForo_ControllerPublic_Post" description="Implements TLDR in controller"/>
+  </code_event_listeners>
+  <cron/>
+  <email_templates/>
+  <email_template_modifications/>
+  <optiongroups/>
+  <permissions>
+    <permission_groups/>
+    <permissions>
+      <permission permission_group_id="forum" permission_id="viewpostautotldr" permission_type="flag" depend_permission_id="viewContent" default_value="unset" interface_group_id="forumPermissions" display_order="3"/>
+    </permissions>
+    <interface_groups/>
+  </permissions>
+  <phrases>
+    <phrase title="permission_forum_viewpostautotldr" version_id="0" version_string="0.0"><![CDATA[View auto tl;dr]]></phrase>
+    <phrase title="tldr_button" version_id="0" version_string="0.0"><![CDATA[TL;DR]]></phrase>
+    <phrase title="tldr_for_post" version_id="0" version_string="0.0"><![CDATA[Auto TL;DR for post #{number} by {user}]]></phrase>
+  </phrases>
+  <route_prefixes/>
+  <style_properties/>
+  <templates>
+    <template title="post_tldr" version_id="0" version_string="0.0"><![CDATA[<xen:title>{xen:phrase tldr_for_post,
+	'number={xen:calc "{$post.position} + 1"}',
+	'user={$post.username}'}</xen:title>
+
+<xen:navigation>
+	<xen:breadcrumb source="$nodeBreadCrumbs" />
+	<xen:breadcrumb href="{xen:link posts, $post}">{xen:helper threadPrefix, $thread}{$thread.title}</xen:breadcrumb>
+</xen:navigation>
+<xen:require css="bb_code.css" />
+<xen:container var="$bodyClasses">{xen:helper nodeClasses, $nodeBreadCrumbs, $forum}</xen:container>
+<xen:container var="$searchBar.thread"><xen:include template="search_bar_thread_only" /></xen:container>
+<xen:container var="$searchBar.forum"><xen:include template="search_bar_forum_only" /></xen:container>
+
+<div class="section">
+	<h3 class="subHeading">{xen:phrase thread}: {xen:helper threadPrefix, $thread}{$thread.title} ({$summarized.smaller}% smaller)</h3>
+	<div class="secondaryContent">
+		{xen:raw $summarized.text}
+	</div>
+	<h3 class="subHeading">{xen:phrase thread}: {xen:helper threadPrefix, $thread}{$thread.title} (input for summarization)</h3>
+	<div class="messageText baseHtml" style="background-color: {xen:property contentBackground}; overflow-y: scroll; max-height: 75px; padding: 10px;">
+		{xen:raw $summarized.source}
+	</div>
+	<h3 class="subHeading">{xen:phrase thread}: {xen:helper threadPrefix, $thread}{$thread.title} (full text)</h3>
+	<div class="messageText baseHtml" style="background-color: {xen:property contentBackground}; overflow-y: scroll; max-height: 75px; padding: 10px;">
+		{xen:raw $messageParsed}
+	</div>
+</div>]]></template>
+  </templates>
+  <public_template_modifications>
+    <modification template="post" modification_key="addhookfortldr" description="Add hook for TL;DR button" execution_order="10" enabled="1" action="str_replace">
+      <find><![CDATA[<xen:if is="{$post.canEdit}">]]></find>
+      <replace><![CDATA[<xen:if is="{$visitor.permissions.forum.viewpostautotldr}">
+<a href="{xen:link posts/tldr, $post}" class="OverlayTrigger item control autotldr" data-cacheOverlay="true"><span></span>{xen:phrase tldr_button}</a>
+</xen:if>
+				$0]]></replace>
+    </modification>
+  </public_template_modifications>
+  <bb_code_media_sites/>
+  <bb_codes/>
+</addon>
